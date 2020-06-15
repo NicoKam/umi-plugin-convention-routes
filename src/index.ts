@@ -38,7 +38,6 @@ function changeChildrenName(arr: RouteConfig[] | undefined): IRoute[] {
 }
 
 export default (api: IApi) => {
-
   api.describe({
     key: 'conventionRoutesConfig',
     config: {
@@ -54,7 +53,7 @@ export default (api: IApi) => {
       scanRoutes({
         pageRoot: api.paths.absPagesPath,
         files: ['index.js', 'index.ts', '_layout.js', '_layout.ts', '_layout.jsx', '_layout.tsx'],
-        template: '@routerConfig',
+        ignore: ['**/components/**', '**/layouts/**', '**/models/**', '**/services/**'],
         formatter: ({ files = {}, fullPath, path, children = [] }, { toScript, pushChild, relativePageRoot }) => {
           const res: any = {
             path: fullPath || path,
@@ -73,9 +72,21 @@ export default (api: IApi) => {
             res.component = join('@/pages', files['_layout']).replace(/\\/g, '/');
             res.exact = false;
           }
+
+          Object.keys(files)
+            .filter((p) => p !== 'index' && p !== '_layout')
+            .forEach((subFile) => {
+              pushChild({
+                path: `${res.path}/${subFile}`,
+                component: join('@/pages', files[subFile]).replace(/\\/g, '/'),
+                exact: true,
+              });
+            });
+
           return res;
         },
         ...conventionRoutesConfig,
+        template: '@routerConfig',
         output: (outputStr) => {
           r(changeChildrenName(JSON.parse(outputStr)));
         },

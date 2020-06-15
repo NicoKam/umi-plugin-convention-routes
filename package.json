@@ -8,7 +8,10 @@
   },
   "repository": "/umi-plugin-k-routes",
   "scripts": {
-    "compile": "k-tools compile"
+    "compile": "k-tools compile",
+    "prepublishOnly": "npm run compile",
+    "pub": "npm publish --registry=https://registry.npmjs.org && git push",
+    "ppub": "npm version patch && npm run pub"
   },
   "devDependencies": {
     "@types/node": "^13.7.7",
