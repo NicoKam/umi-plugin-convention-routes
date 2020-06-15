@@ -1,12 +1,13 @@
 {
   "name": "umi-plugin-convention-routes",
+  "version": "0.0.1",
   "main": "lib/index.js",
   "description": "A convention routes plugin for umi@3.x",
   "authors": {
     "name": "NicoKam",
     "email": "331677620@qq.com"
   },
-  "repository": "/umi-plugin-k-routes",
+  "repository": "https://github.com/NicoKam/umi-plugin-convention-routes",
   "scripts": {
     "compile": "k-tools compile",
     "prepublishOnly": "npm run compile",
@@ -16,6 +17,7 @@
   "devDependencies": {
     "@types/node": "^13.7.7",
     "@umijs/core": "^3.2.3",
+    "k-tools": "^0.1.6",
     "umi": "^3.2.3"
   },
   "peerDependencies": {
@@ -26,6 +28,6 @@
     "lib"
   ],
   "dependencies": {
-    "routes-watcher": "0.0.9"
+    "routes-watcher": "^0.0.9"
   }
 }
