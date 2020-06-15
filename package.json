@@ -10,7 +10,7 @@
   "repository": "https://github.com/NicoKam/umi-plugin-convention-routes",
   "scripts": {
     "compile": "k-tools compile",
-    "prepublishOnly": "npm run compile",
+    "prepublishOnly": "npm run compile --no-babel-runtime",
     "pub": "npm publish --registry=https://registry.npmjs.org && git push",
     "ppub": "npm version patch && npm run pub"
   },

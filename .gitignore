@@ -8,3 +8,5 @@ yarn-error.log*
 .uploadrc
 .DS_Store
 .idea/
+lib/
+es/
