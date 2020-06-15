@@ -67,7 +67,8 @@ Configure in `.umirc.js`,
 ```js
 export default {
   plugins: [
-    ['umi-plugin-convention-routes'],
+    // 注意：umijs@3会扫描符合命名规则的插件并自动注册，所以这里不需要额外注册插件（注意看报错信息）
+    // ['umi-plugin-convention-routes'],
   ],
 }
 ```
