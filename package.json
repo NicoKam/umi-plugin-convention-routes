@@ -28,6 +28,6 @@
     "lib"
   ],
   "dependencies": {
-    "routes-watcher": "^0.0.12"
+    "routes-watcher": "^0.0.13"
   }
 }
