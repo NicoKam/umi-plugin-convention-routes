@@ -6,7 +6,7 @@ import { IRoute } from '@umijs/core';
 type RouteConfig = {
   children: RouteConfig[];
   [key: string]: any;
-};
+} | IRoute;
 
 function flatten<T>(arr: T[]) {
   const res: T[] = [];
@@ -18,6 +18,17 @@ function flatten<T>(arr: T[]) {
     }
   });
   return res;
+}
+
+function sortDynamicRoutes(arr: RouteConfig[] | undefined): IRoute[] {
+  if (!arr) {
+    return [];
+  }
+  return arr.sort((a, b) => {
+    const dynA = a.path?.indexOf(':') ?? -1;
+    const dynB = b.path?.indexOf(':') ?? -1;
+    return dynA - dynB;
+  });
 }
 
 function changeChildrenName(arr: RouteConfig[] | undefined): IRoute[] {
@@ -36,6 +47,19 @@ function changeChildrenName(arr: RouteConfig[] | undefined): IRoute[] {
     }),
   );
 }
+
+const replaceDynamicRoutePath = (path: string) => {
+  return path.replace(/\[([^/^\[^\]]+)\]/g, (match0, match1, index, str) => {
+    if (
+      index > 0 &&
+      str[index - 1] === '/' &&
+      (index + match0.length >= str.length || str[index + match0.length] === '/')
+    ) {
+      return `:${match1}`;
+    }
+    return match0;
+  });
+};
 
 export default (api: IApi) => {
   api.describe({
@@ -56,7 +80,7 @@ export default (api: IApi) => {
         ignore: ['**/components/**', '**/layouts/**', '**/models/**', '**/services/**'],
         formatter: ({ files = {}, fullPath, path, children = [] }, { toScript, pushChild, relativePageRoot }) => {
           const res: any = {
-            path: fullPath || path,
+            path: replaceDynamicRoutePath(fullPath || path),
           };
 
           if (files['index']) {
@@ -88,7 +112,7 @@ export default (api: IApi) => {
         ...conventionRoutesConfig,
         template: '@routerConfig',
         output: (outputStr) => {
-          r(changeChildrenName(JSON.parse(outputStr)));
+          r(sortDynamicRoutes(changeChildrenName(JSON.parse(outputStr))));
         },
         watch: false,
       });
