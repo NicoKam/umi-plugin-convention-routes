@@ -117,7 +117,7 @@ export default (api: IApi) => {
         watch: false,
       });
     });
-    if (routes[0].component === '@/layouts/index.js') {
+    if (routes[0].component && routes[0].component.startsWith('@/layouts/index.')) {
       /* 有layout的情况 */
       return [{ ...routes[0], routes: newRoutes }];
     }
