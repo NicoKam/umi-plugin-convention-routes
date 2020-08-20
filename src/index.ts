@@ -76,7 +76,7 @@ export default (api: IApi) => {
     const newRoutes = await new Promise<IRoute[]>((r) => {
       scanRoutes({
         pageRoot: api.paths.absPagesPath,
-        files: ['index.js', 'index.ts', '_layout.js', '_layout.ts', '_layout.jsx', '_layout.tsx'],
+        files: ['index.js', 'index.ts', 'index.tsx', '_layout.js', '_layout.ts', '_layout.jsx', '_layout.tsx'],
         ignore: ['**/components/**', '**/layouts/**', '**/models/**', '**/services/**'],
         formatter: ({ files = {}, fullPath, path, children = [] }, { toScript, pushChild, relativePageRoot }) => {
           const res: any = {
