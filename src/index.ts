@@ -127,10 +127,17 @@ export default (api: IApi) => {
         fs.existsSync(join(api.paths.absPagesPath!, '404.jsx'));
       const newRoute = [{ ...routes[0], routes: newRoutes }];
       if (has404) {
-        newRoute.push({
-          component: '@/pages/404',
-          routes: [],
-        });
+        type RouteConfig = typeof newRoute[0];
+        function add404(routes: RouteConfig['routes']){
+          routes.forEach(route => {
+            if(route.exact!==true && route.routes!=null){
+              add404(route.routes);
+            }
+          });
+          routes.push({ component: '@/pages/404' });
+        }
+
+        add404(newRoute);
       }
       /* 有layout的情况 */
       return newRoute;
