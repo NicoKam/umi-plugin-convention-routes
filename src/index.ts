@@ -2,13 +2,16 @@ import { join } from 'path';
 import scanRoutes from 'routes-watcher';
 import { IApi } from 'umi';
 import { IRoute } from '@umijs/core';
+import fs from 'fs';
 
-type RouteConfig = {
-  children: RouteConfig[];
-  [key: string]: any;
-} | IRoute;
+type RouteConfig =
+  | {
+      children: RouteConfig[];
+      [key: string]: any;
+    }
+  | IRoute;
 
-function flatten<T>(arr: T[]) {
+function flatten<T>(arr: (T | T[])[]) {
   const res: T[] = [];
   arr.forEach((T) => {
     if (Array.isArray(T)) {
@@ -118,8 +121,19 @@ export default (api: IApi) => {
       });
     });
     if (routes[0].component && routes[0].component.startsWith('@/layouts/index.')) {
+      const has404 =
+        fs.existsSync(join(api.paths.absPagesPath!, '404.js')) ||
+        fs.existsSync(join(api.paths.absPagesPath!, '404.tsx')) ||
+        fs.existsSync(join(api.paths.absPagesPath!, '404.jsx'));
+      const newRoute = [{ ...routes[0], routes: newRoutes }];
+      if (has404) {
+        newRoute.push({
+          component: '@/pages/404',
+          routes: [],
+        });
+      }
       /* 有layout的情况 */
-      return [{ ...routes[0], routes: newRoutes }];
+      return newRoute;
     }
     return newRoutes;
   });
