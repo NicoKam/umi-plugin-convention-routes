@@ -11,18 +11,6 @@ type RouteConfig =
     }
   | IRoute;
 
-function flatten<T>(arr: (T | T[])[]) {
-  const res: T[] = [];
-  arr.forEach((T) => {
-    if (Array.isArray(T)) {
-      res.push(...T);
-    } else {
-      res.push(T);
-    }
-  });
-  return res;
-}
-
 function sortDynamicRoutes(arr: RouteConfig[] | undefined): IRoute[] {
   if (!arr) {
     return [];
@@ -33,36 +21,6 @@ function sortDynamicRoutes(arr: RouteConfig[] | undefined): IRoute[] {
     return dynA - dynB;
   });
 }
-
-function changeChildrenName(arr: RouteConfig[] | undefined): IRoute[] {
-  if (!arr) {
-    return [];
-  }
-  return flatten(
-    arr.map(({ children, component, ...route }) => {
-      if (component)
-        return {
-          ...route,
-          component,
-          routes: changeChildrenName(children),
-        };
-      return changeChildrenName(children);
-    }),
-  );
-}
-
-const replaceDynamicRoutePath = (path: string) => {
-  return path.replace(/\[([^/^\[^\]]+)\]/g, (match0, match1, index, str) => {
-    if (
-      index > 0 &&
-      str[index - 1] === '/' &&
-      (index + match0.length >= str.length || str[index + match0.length] === '/')
-    ) {
-      return `:${match1}`;
-    }
-    return match0;
-  });
-};
 
 export default (api: IApi) => {
   api.describe({
@@ -79,43 +37,26 @@ export default (api: IApi) => {
     const newRoutes = await new Promise<IRoute[]>((r) => {
       scanRoutes({
         pageRoot: api.paths.absPagesPath,
-        files: ['index.js', 'index.ts', 'index.tsx', '_layout.js', '_layout.ts', '_layout.jsx', '_layout.tsx'],
-        ignore: ['**/components/**', '**/layouts/**', '**/models/**', '**/services/**'],
-        formatter: ({ files = {}, fullPath, path, children = [] }, { toScript, pushChild, relativePageRoot }) => {
-          const res: any = {
-            path: replaceDynamicRoutePath(fullPath || path),
-          };
-
-          if (files['index']) {
-            const component = join('@/pages', files['index']).replace(/\\/g, '/');
-            if (files['_layout'] || children.length > 0) {
-              pushChild({ ...res, component, exact: true });
-            } else {
-              res.component = component;
-              res.exact = true;
+        childrenKey: 'routes',
+        filter: (obj) => {
+          return obj.name === 'index' || obj.name === '_layout';
+        },
+        excludes: [/[\\/](components|models|services|layouts)[\\/]/],
+        modifyRoutePath: (path) => {
+          return path.replace(/\/\[([^/^\[^\]]+)\]\/?/g, (match0, match1, index, str) => {
+            if (index > 0) {
+              if (match1.endsWith('$')) {
+                return `:${match1.slice(0, match1.length - 1)}?`;
+              }
+              return `:${match1}`;
             }
-          }
-          if (files['_layout']) {
-            res.component = join('@/pages', files['_layout']).replace(/\\/g, '/');
-            res.exact = false;
-          }
-
-          Object.keys(files)
-            .filter((p) => p !== 'index' && p !== '_layout')
-            .forEach((subFile) => {
-              pushChild({
-                path: `${res.path}/${subFile}`,
-                component: join('@/pages', files[subFile]).replace(/\\/g, '/'),
-                exact: true,
-              });
-            });
-
-          return res;
+            return match0;
+          });
         },
         ...conventionRoutesConfig,
         template: '@routerConfig',
-        output: (outputStr) => {
-          r(sortDynamicRoutes(changeChildrenName(JSON.parse(outputStr))));
+        output: (outputStr: string) => {
+          r(sortDynamicRoutes(JSON.parse(outputStr)));
         },
         watch: false,
       });
@@ -128,9 +69,9 @@ export default (api: IApi) => {
       const newRoute = [{ ...routes[0], routes: newRoutes }];
       if (has404) {
         type RouteConfig = typeof newRoute[0];
-        function add404(routes: RouteConfig['routes']){
-          routes.forEach(route => {
-            if(route.exact!==true && route.routes!=null){
+        function add404(routes: RouteConfig['routes']) {
+          routes.forEach((route) => {
+            if (route.exact !== true && route.routes != null) {
               add404(route.routes);
             }
           });
@@ -139,7 +80,6 @@ export default (api: IApi) => {
 
         add404(newRoute);
       }
-      /* 有layout的情况 */
       return newRoute;
     }
     return newRoutes;

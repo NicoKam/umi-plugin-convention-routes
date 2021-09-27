@@ -9,16 +9,20 @@
   },
   "repository": "https://github.com/NicoKam/umi-plugin-convention-routes",
   "scripts": {
-    "compile": "k-tools compile --no-babel-runtime",
-    "prepublishOnly": "npm run compile --no-babel-runtime",
+    "clear": "rimraf esm lib",
+    "build": "npm run clear && tsc -p config/tsconfig.prod.json",
+    "prepublishOnly": "npm run build",
     "pub": "npm publish --registry=https://registry.npmjs.org && git push",
     "ppub": "npm version patch && npm run pub"
   },
+  "publishConfig": {
+    "registry": "https://registry.npmjs.org/"
+  },
   "devDependencies": {
-    "@types/node": "^13.7.7",
-    "@umijs/core": "^3.2.3",
-    "k-tools": "^0.2.0",
-    "umi": "^3.2.3"
+    "@types/node": "^14.17.19",
+    "@umijs/core": "^3.5.19",
+    "prettier": "^2.4.1",
+    "umi": "^3.5.19"
   },
   "peerDependencies": {
     "@umijs/core": "^3",
@@ -28,6 +32,6 @@
     "lib"
   ],
   "dependencies": {
-    "routes-watcher": "^0.0.13"
+    "routes-watcher": "^1.0.2"
   }
 }
