@@ -1,7 +1,6 @@
 # umi-plugin-convention-routes
 
-[![NPM version](https://img.shields.io/npm/v/umi-plugin-convention-routes.svg?style=flat)](https://npmjs.org/package/umi-plugin-convention-routes)
-[![NPM downloads](http://img.shields.io/npm/dm/umi-plugin-convention-routes.svg?style=flat)](https://npmjs.org/package/umi-plugin-convention-routes)
+[![NPM version](https://img.shields.io/npm/v/umi-plugin-convention-routes.svg?style=flat)](https://npmjs.org/package/umi-plugin-convention-routes) [![NPM downloads](http://img.shields.io/npm/dm/umi-plugin-convention-routes.svg?style=flat)](https://npmjs.org/package/umi-plugin-convention-routes)
 
 这是一个为`约定式路由`功能而做的插件，适用于`umijs@3.x`
 
@@ -9,9 +8,14 @@
 
 ## 更新记录
 
+### 1.0.x
+
+- 更新 `routes-watcher` 到 `1.0.0`
+- 增加动态可选路由支持
+
 ### 0.1.x
 
-- feat: 增加动态路由功能（参考[umijs的动态路由](https://umijs.org/docs/convention-routing#%E5%8A%A8%E6%80%81%E8%B7%AF%E7%94%B1)
+- feat: 增加动态路由功能（参考[umijs 的动态路由](https://umijs.org/docs/convention-routing#%E5%8A%A8%E6%80%81%E8%B7%AF%E7%94%B1)
 - fix: 修复 umi@3.2.6+ 版本使用插件后无法启动的问题
 
 ## Why
@@ -48,11 +52,11 @@
 /pages/home/columns.js -- 可能是当前页面的表格头部定义
 ```
 
-### umijs@3的路由做了哪些改变
+### umijs@3 的路由做了哪些改变
 
 <p><img src="./assets/convention-routes-umi3.png" /></p>
 
-我们可以[查看文档](https://umijs.org/docs/convention-routing)发现，umijs默认对路由增加了一些限制。
+我们可以[查看文档](https://umijs.org/docs/convention-routing)发现，umijs 默认对路由增加了一些限制。
 
 上面提到的`文件内容不包含 JSX 元素`不作为路由解析的规则，与我将`index`作为页面入口的规则相互冲突。因此我编写了这个插件，代替`umijs`以行使我的路由识别规则。
 
@@ -73,33 +77,27 @@ Configure in `.umirc.js`,
 
 ```js
 export default {
-  plugins: [
-    // 注意：umijs@3会扫描符合命名规则的插件并自动注册，所以这里不需要额外注册插件（注意看报错信息）
-    // ['umi-plugin-convention-routes'],
-  ],
-}
+  plugins: [],
+};
 ```
 
 ## Options
 
 Configure in `.umirc.js`,
 
-```js
+```typescript
 export default {
-  /* 都是可选项，不配置就是我的默认规则 */
-  conventionRoutesConfig:{
-    /* 页面根目录 */
+  conventionRoutesConfig: {
     pageRoot: 'src/pages',
-    /* 可识别的文件(glob通配符) */
-    files: ['index.js', 'index.ts', '_layout.js', '_layout.ts', '_layout.jsx', '_layout.tsx'],
-    /* 排除的内容(glob通配符) */
-    ignore: ["**/components/**", "**/layouts/**", "**/models/**", "**/services/**"],
-    /* 对扫描到的文件进一步过滤 */
-    filter: path => false,
-    /* 不建议修改，对每一个扫描到的节点进行格式化，用于生成路由配置 */
-    formatter: () => ({})
-  }
-}
+    filter: (obj) => {
+      return obj.name === 'index' || obj.name === '_layout';
+    },
+    includes: [],
+    excludes: [/[\\/](components|models|services|layouts)[\\/]/],
+    extensions: ['.js', '.jsx', '.ts', '.tsx', '.vue'],
+    modifyRoutes: (routes: RouteConfig[]) => routes,
+  },
+};
 ```
 
 ## LICENSE

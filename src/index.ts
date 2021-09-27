@@ -34,7 +34,6 @@ export default (api: IApi) => {
           filter: joi.function(),
           componentPath: joi.function(),
           extensions: joi.array().items(joi.string()),
-          routePath: joi.function(),
           includes: joi.array().items(joi.object().instance(RegExp)),
           excludes: joi.array().items(joi.object().instance(RegExp)),
           /** 完成扫描路由后的提示 */
