@@ -27,7 +27,21 @@ export default (api: IApi) => {
     key: 'conventionRoutesConfig',
     config: {
       schema(joi) {
-        return joi.object();
+        return joi.object({
+          /** 页面根目录 */
+          pageRoot: joi.string(),
+          /** 路由过滤器 */
+          filter: joi.function(),
+          componentPath: joi.function(),
+          extensions: joi.array().items(joi.string()),
+          routePath: joi.function(),
+          includes: joi.array().items(joi.object().instance(RegExp)),
+          excludes: joi.array().items(joi.object().instance(RegExp)),
+          /** 完成扫描路由后的提示 */
+          successTips: joi.string(),
+          /** 对生成的路由做一次整体调整 */
+          modifyRoutes: joi.function()
+        });
       },
     },
   });
@@ -61,7 +75,7 @@ export default (api: IApi) => {
         watch: false,
       });
     });
-    if (routes[0].component && routes[0].component.startsWith('@/layouts/index.')) {
+    if (routes[0] && routes[0].component && routes[0].component.startsWith('@/layouts/index.')) {
       const has404 =
         fs.existsSync(join(api.paths.absPagesPath!, '404.js')) ||
         fs.existsSync(join(api.paths.absPagesPath!, '404.tsx')) ||
