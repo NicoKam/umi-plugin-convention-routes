@@ -39,13 +39,19 @@ export default (api: IApi) => {
           /** 完成扫描路由后的提示 */
           successTips: joi.string(),
           /** 对生成的路由做一次整体调整 */
-          modifyRoutes: joi.function()
+          modifyRoutes: joi.function(),
         });
       },
     },
   });
+
+  let lastRoutesOutput = '';
+  let lastRoutesConfig: IRoute[] = [];
+
   api.modifyRoutes(async (routes: IRoute[]) => {
-    const { conventionRoutesConfig } = api.config;
+    const {
+      conventionRoutesConfig: { successTips = 'Routes updated.', ...conventionRoutesConfig },
+    } = api.config;
 
     const newRoutes = await new Promise<IRoute[]>((r) => {
       scanRoutes({
@@ -67,9 +73,15 @@ export default (api: IApi) => {
           });
         },
         ...conventionRoutesConfig,
+        successTips: '',
         template: '@routerConfig',
         output: (outputStr: string) => {
-          r(sortDynamicRoutes(JSON.parse(outputStr)));
+          if (outputStr !== lastRoutesOutput) {
+            lastRoutesOutput = outputStr;
+            lastRoutesConfig = sortDynamicRoutes(JSON.parse(outputStr));
+            api.logger.info(successTips)
+          }
+          r(lastRoutesConfig);
         },
         watch: false,
       });
