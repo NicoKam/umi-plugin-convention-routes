@@ -79,7 +79,7 @@ export default (api: IApi) => {
           if (outputStr !== lastRoutesOutput) {
             lastRoutesOutput = outputStr;
             lastRoutesConfig = sortDynamicRoutes(JSON.parse(outputStr));
-            api.logger.info(successTips)
+            api.logger.info(successTips);
           }
           r(lastRoutesConfig);
         },
