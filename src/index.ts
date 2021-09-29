@@ -49,9 +49,8 @@ export default (api: IApi) => {
   let lastRoutesConfig: IRoute[] = [];
 
   api.modifyRoutes(async (routes: IRoute[]) => {
-    const {
-      conventionRoutesConfig: { successTips = 'Routes updated.', ...conventionRoutesConfig },
-    } = api.config;
+    const { conventionRoutesConfig = {} } = api.config;
+    const { successTips = 'Routes updated.', ...otherConventionRoutesConfig } = conventionRoutesConfig;
 
     const newRoutes = await new Promise<IRoute[]>((r) => {
       scanRoutes({
@@ -72,7 +71,7 @@ export default (api: IApi) => {
             return match0;
           });
         },
-        ...conventionRoutesConfig,
+        ...otherConventionRoutesConfig,
         successTips: '',
         template: '@routerConfig',
         output: (outputStr: string) => {
