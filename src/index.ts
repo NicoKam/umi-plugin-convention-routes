@@ -61,12 +61,12 @@ export default (api: IApi) => {
         },
         excludes: [/[\\/](components|models|services|layouts)[\\/]/],
         modifyRoutePath: (path) => {
-          return path.replace(/\/\[([^/^\[^\]]+)\]\/?/g, (match0, match1, index, str) => {
+          return path.replace(/\/\[([^/^\[^\]]+)\](\/?)/g, (match0, match1, match2, index, str) => {
             if (index > 0) {
               if (match1.endsWith('$')) {
-                return `:${match1.slice(0, match1.length - 1)}?`;
+                return `/:${match1.slice(0, match1.length - 1)}?${match2}`;
               }
-              return `:${match1}`;
+              return `/:${match1}${match2}`;
             }
             return match0;
           });
