@@ -6,16 +6,24 @@ import fs from 'fs';
 
 type RouteConfig =
   | {
-      children: RouteConfig[];
-      [key: string]: any;
-    }
+    children: RouteConfig[];
+    [key: string]: any;
+  }
   | IRoute;
 
 function sortDynamicRoutes(arr: RouteConfig[] | undefined): IRoute[] {
   if (!arr) {
     return [];
   }
-  return arr.sort((a, b) => {
+  return arr.map((r) => {
+    if (Array.isArray(r.children) && r.children.length > 0) {
+      return {
+        ...r,
+        children: sortDynamicRoutes(r.children)
+      }
+    }
+    return r;
+  }).sort((a, b) => {
     const dynA = a.path?.indexOf(':') ?? -1;
     const dynB = b.path?.indexOf(':') ?? -1;
     return dynA - dynB;
