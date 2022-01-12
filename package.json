@@ -1,6 +1,6 @@
 {
   "name": "umi-plugin-convention-routes",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "main": "lib/index.js",
   "description": "A convention routes plugin for umi@3.x",
   "authors": {
